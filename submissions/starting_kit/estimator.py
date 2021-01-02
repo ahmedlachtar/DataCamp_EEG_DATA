@@ -9,14 +9,15 @@ from sklearn.ensemble import RandomForestClassifier
 
 
 def get_mean(X):
-    index = X.columns.get_loc("data")
+    index = X.columns.get_loc("data_lists")
 
     mean_array = np.array(X)
     n = mean_array.shape[0]
 
     L = mean_array[:, index]
+
     for i in range(n):
-        mean_array[i, index] = round(np.mean(L[i]), 4)
+        mean_array[i, index] = round(np.mean(L[i][0]), 4)
     return mean_array
 
 
@@ -24,15 +25,15 @@ transformer_m = FunctionTransformer(
     lambda X: get_mean(X))
 
 passthrough_cols = [
-    'id',
     'event',
+    'device',
     'size'
 ]
 
 transformer = make_column_transformer(
             # (OrdinalEncoder(), ['device']),
             # (OneHotEncoder(), ['channel']),
-            (transformer_m, ['data']),
+            (transformer_m, ['data_lists']),
             ('passthrough', passthrough_cols)
 )
 
