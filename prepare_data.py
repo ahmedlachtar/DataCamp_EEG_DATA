@@ -12,9 +12,13 @@ def _read_zip(filename):
     df = pd.read_csv(path, delimiter='\t', index_col=0,
                      names=col_names,
                      compression='zip')
+    # shuffle
+    df = df.sample(frac=1).reset_index()
+
+    # truncate here
     n = 5000
     stop = df.channel.unique().shape[0]
-    # truncate here
+
     return df.iloc[:n*stop, ]
 
 
@@ -66,7 +70,7 @@ if __name__ == '__main__':
     private_path = os.path.join('data', 'private')
 
     # comment if you already done this
-    # os.mkdir(public_path) 
+    # os.mkdir(public_path)
     # os.mkdir(private_path)
 
     print("commencing preparing data, this make take a few minutes..")
