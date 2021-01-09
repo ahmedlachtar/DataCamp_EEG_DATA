@@ -85,8 +85,8 @@ def feature_extractor(X_df):
     X_df = X_df['data_lists'].reset_index(drop=True)
     n_channels = len(X_df[0])
     len_list = len(X_df[0][0])
-    n_freq = 3
-    n_features = 2 + 2*n_freq
+    n_freq = 6
+    n_features = 2 + n_freq
     feature_array = np.zeros((len(X_df), n_channels*n_features))
     for k, (_, x) in enumerate(X_df.iteritems()):
         len_list = len(x[0])
@@ -100,7 +100,7 @@ def feature_extractor(X_df):
             freqs = freqs_ft[indices]
             terms = magnitude_spectrum[indices]
             feature_array[k, 8*i:(8*(i+1))] = np.concatenate(
-                (freqs, terms, np.mean(x[i]).reshape(-1), np.std(x[i]).reshape(-1)))
+                (freqs, np.mean(x[i]).reshape(-1), np.std(x[i]).reshape(-1)))
     return feature_array
 
 

@@ -30,7 +30,7 @@ def get_cv(X, y):
 
 
 # READ DATA
-devices = ['in']  # 'in', 'mu', 'ep'
+devices = ['in', 'mu', 'ep', 'mw']
 
 
 def string_to_float(x):
