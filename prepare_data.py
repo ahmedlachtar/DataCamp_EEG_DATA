@@ -12,14 +12,16 @@ def _read_zip(filename):
     df = pd.read_csv(path, delimiter='\t', index_col=0,
                      names=col_names,
                      compression='zip')
-    # shuffle
-    df = df.sample(frac=1).reset_index()
-
     # truncate here
-    n = 5000
-    stop = df.channel.unique().shape[0]
-
-    return df.iloc[:n*stop, ]
+    n = 3000
+    stop = df.channel.nunique()
+    
+    df_codes = df.iloc[:n*stop, ]
+    df_rand = df[df['code'] == -1].iloc[: n // 10 * stop]
+    
+    df = pd.concat([df_codes, df_rand])
+    
+    return df.sample(frac=1)
 
 
 # def string_to_float(string_array):
@@ -70,7 +72,7 @@ if __name__ == '__main__':
     private_path = os.path.join('data', 'private')
 
     # comment if you already done this
-    # os.mkdir(public_path)
+    # os.mkdir(public_path) 
     # os.mkdir(private_path)
 
     print("commencing preparing data, this make take a few minutes..")
@@ -87,5 +89,6 @@ if __name__ == '__main__':
         print("preparing data for '{}' device ..".format(device))
         df = _read_zip(file_map[device])
         df = aggregate(df)
+
         for i, x in enumerate(private_public_split(df)):
             to_csv_file(x, device + "_" + type_list[i])
