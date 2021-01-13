@@ -1,17 +1,17 @@
 import numpy as np
-from sklearn.preprocessing import FunctionTransformer, OrdinalEncoder, OneHotEncoder
+from sklearn.preprocessing import FunctionTransformer, OneHotEncoder
 from sklearn.base import BaseEstimator, ClassifierMixin
-from sklearn.pipeline import Pipeline, make_pipeline
-from sklearn.compose import ColumnTransformer, make_column_transformer
+from sklearn.pipeline import Pipeline
+from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import GradientBoostingClassifier
 from numpy.fft import fft, fftfreq
-import pywt
+
 
 class DemocracyEstimator(BaseEstimator, ClassifierMixin):
     def __init__(self):
         self.categorical_transformer = OneHotEncoder()
         self.categorical_feature = ['device']
-        self.signals_feature = ['data_lists']
+        self.signals_feature = ['signals']
         self.estimators = {
             "EP": GradientBoostingClassifier(),
             "IN": GradientBoostingClassifier(),
@@ -24,7 +24,7 @@ class DemocracyEstimator(BaseEstimator, ClassifierMixin):
                     ('num', FunctionTransformer(
                         lambda X: feature_extractor(X)), self.signals_feature),
                 ]),
-           "IN": ColumnTransformer(
+            "IN": ColumnTransformer(
               transformers=[
                    ('num', FunctionTransformer(
                        lambda X: feature_extractor(X)), self.signals_feature),
@@ -65,16 +65,16 @@ class DemocracyEstimator(BaseEstimator, ClassifierMixin):
         return y_pred
 
     def predict_proba(self, X):
-        test = 0
-        prob_pred = np.empty((X.shape[0],11))
+
+        prob_pred = np.empty((X.shape[0], 11))
         for k in range(X.shape[0]):
             row = X.loc[[k], :]
             device = row.loc[k, "device"]
             row = self.transformers[device].transform(row)
             # [0,4:])))
-            row_prediction =self.estimators[device].predict_proba(row)
+            row_prediction = self.estimators[device].predict_proba(row)
             if device == "IN":
-                row_prediction = np.append(0,row_prediction[0])
+                row_prediction = np.append(0, row_prediction[0])
             prob_pred[k, :] = np.array(row_prediction)
         return np.array(prob_pred)
 
@@ -84,7 +84,8 @@ class DemocracyEstimator(BaseEstimator, ClassifierMixin):
 
 
 def feature_extractor(X_df):
-    X_df = X_df['data_lists'].reset_index(drop=True)
+
+    X_df = X_df['signals'].reset_index(drop=True)
     n_channels = len(X_df[0])
     n_freq = 3
     n_features = 2 + 2*n_freq
@@ -100,24 +101,12 @@ def feature_extractor(X_df):
             indices = (-magnitude_spectrum).argsort()[:n_freq]
             freqs = freqs_ft[indices]
             terms = magnitude_spectrum[indices]
-            """"(ca, cd) = pywt.dwt(x[i], 'haar')
-            cat = pywt.threshold(ca, np.std(ca) / 2)
-            cdt = pywt.threshold(cd, np.std(cd) / 2)
-            wavelet_features = np.array([
-            np.mean(cat),
-            np.max(cat),
-            np.min(cat),
-            np.std(cat),
-            np.mean(cdt),
-            np.max(cdt),
-            np.min(cdt),
-            np.std(cdt)])"""
+
             feature_array[k, n_features*i:(n_features*(i+1))] = np.concatenate(
                 (
-                    #wavelet_features,
+                    # wavelet_features,
                     freqs, terms, np.mean(x[i]).reshape(-1), np.std(x[i]).reshape(-1)))
     return feature_array
-
 
 
 transformer_m = FunctionTransformer(
@@ -131,7 +120,7 @@ categorical_transformer = OneHotEncoder()
 preprocessor = ColumnTransformer(
     transformers=[
         ('cat', categorical_transformer, categorical_features),
-        ('num', "passthrough", ['data_lists'])
+        ('num', "passthrough", ['signals'])
     ])
 
 # Append classifier to preprocessing pipeline.
