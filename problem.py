@@ -9,7 +9,7 @@ from sklearn.model_selection import StratifiedShuffleSplit
 problem_title = 'Classification of digit seen based on EEG signals'
 _target_column_name = 'code'
 _ignore_column_names = []
-_prediction_label_names = [float(-1)] + [float(i) for i in range(10)]
+_prediction_label_names = [float(i) for i in range(-1, 10)]
 
 # A type (class) which will be used to create wrapper objects for y_pred
 Predictions = rw.prediction_types.make_multiclass(
