@@ -1,8 +1,8 @@
 import numpy as np
-from sklearn.preprocessing import FunctionTransformer, OrdinalEncoder, OneHotEncoder
+from sklearn.preprocessing import FunctionTransformer, OneHotEncoder
 from sklearn.base import BaseEstimator, ClassifierMixin
-from sklearn.pipeline import Pipeline, make_pipeline
-from sklearn.compose import ColumnTransformer, make_column_transformer
+from sklearn.pipeline import Pipeline
+from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import GradientBoostingClassifier
 from numpy.fft import fft, fftfreq
 
@@ -12,7 +12,7 @@ class DemocracyEstimator(BaseEstimator, ClassifierMixin):
         self.categorical_transformer = OneHotEncoder()
         self.categorical_feature = ['device']
         self.signals_feature = ['signals']
-        self.devices = ["EP", "IN", "MU", "MW"]
+        self.devices = ["MW", "EP", "IN", "MU"]
         self.estimators = {}
         self.transformers = {}
         for device in self.devices:
@@ -31,10 +31,12 @@ class DemocracyEstimator(BaseEstimator, ClassifierMixin):
             y_dict[key] = y[X['device'] == key]
 
         for key in self.estimators.keys():
+            print("Fitting estimator of device: ",key, "with df_train.shape=",X_dict[key].shape)
             self.transformers[key].fit(X_dict[key])
             transformed_samples = self.transformers[key].transform(X_dict[key])
             self.estimators[key].fit(transformed_samples, y_dict[key])
-            
+
+        print("Fitting phase finished...")    
         return self
 
     def predict(self, X):
@@ -49,7 +51,12 @@ class DemocracyEstimator(BaseEstimator, ClassifierMixin):
     def predict_proba(self, X):
         prob_pred = np.empty((X.shape[0], 11))
         prob_pred[:] = np.nan
-        for k in range(X.shape[0]):
+        n = X.shape[0]
+        if n == 7144 :
+            step = "Computing train score:"
+        else : 
+            step = "Computing cv score:"
+        for k in range(n):
             row = X.loc[[k], :]
             device = row.loc[k, "device"]
             row = self.transformers[device].transform(row)
@@ -58,6 +65,8 @@ class DemocracyEstimator(BaseEstimator, ClassifierMixin):
                 prob_pred[k, :] = aux
             else:
                 prob_pred[k, :] = np.concatenate(([0], aux))
+            if k%500 == 0:
+                print(step,k,"/",n)
         return np.array(prob_pred)
 
     def score(self, X, y):
@@ -66,9 +75,12 @@ class DemocracyEstimator(BaseEstimator, ClassifierMixin):
 
 
 def feature_extractor(X_df):
-    X_df = X_df['signals'].reset_index(drop=True)
-    n_channels = len(X_df[0])
-    len_list = len(X_df[0][0])
+    X_df = X_df.reset_index(drop=True)
+    try :
+        n_channels = len(X_df.loc[0,"signals"])
+    except:
+        print(X_df)
+    X_df = X_df['signals']
     n_freq = 6
     n_features = 2 + n_freq
     feature_array = np.zeros((len(X_df), n_channels*n_features))
@@ -82,7 +94,6 @@ def feature_extractor(X_df):
             magnitude_spectrum = np.abs(ft)
             indices = (-magnitude_spectrum).argsort()[:n_freq]
             freqs = freqs_ft[indices]
-            #terms = magnitude_spectrum[indices]
             feature_array[k, 8*i:(8*(i+1))] = np.concatenate(
                 (freqs, np.mean(x[i]).reshape(-1), np.std(x[i]).reshape(-1)))
     return feature_array

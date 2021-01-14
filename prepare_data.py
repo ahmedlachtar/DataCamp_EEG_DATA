@@ -75,7 +75,7 @@ if __name__ == '__main__':
     # os.mkdir(public_path) 
     # os.mkdir(private_path)
 
-    print("commencing preparing data, this make take a few minutes..")
+    print("commencing preparing data, this may take a few minutes..")
     file_map = {
                 "in": "original_insight.zip",
                 "ep": "original_epoc.zip",
