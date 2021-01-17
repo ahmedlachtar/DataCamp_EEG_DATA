@@ -56,10 +56,10 @@ class DemocracyEstimator(BaseEstimator, ClassifierMixin):
 
     def predict(self, X):
         y_pred = np.empty((X.shape[0]))
-
+        X = X.reset_index(drop=True)
         for k in range(X.shape[0]):
-            row = X.loc[[k], :]
-            device = row.loc[k, "device"]
+            row = X.iloc[[k]]
+            device = X["device"][k]
 
             y_pred[k] = self.pipelines[device].predict(row)
 
@@ -77,8 +77,8 @@ class DemocracyEstimator(BaseEstimator, ClassifierMixin):
             step = "Computing cv score:"
 
         for k in range(n):
-            row = X.loc[[k], :]
-            device = row.loc[k, "device"]
+            row = X.iloc[[k]]
+            device = X["device"][k]
 
             aux = self.pipelines[device].predict_proba(row)[0]
 
@@ -123,7 +123,6 @@ def feature_extractor(X):
             wv_feat.append(np.min(cdt))
 
             wv_feat = np.array(wv_feat)
-
             # FFT
             ft = fft(x[i])
             freqs_ft = fftfreq(len_list)
