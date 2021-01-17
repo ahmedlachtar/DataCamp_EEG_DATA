@@ -43,3 +43,10 @@ ramp-test --help
 ```
 
 - If you wish to know more about how the Ramp works, more detailes can be found [here](https://paris-saclay-cds.github.io/ramp-docs/ramp-workflow/stable/using_kits.html)
+
+### Groupe members:
+- Houssem guidara
+- Rania Ferchichi
+- Ahmed Lachtar
+- Yassine Filali
+- Mohamed el Khames Boumaiza
