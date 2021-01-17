@@ -1,5 +1,6 @@
 numpy
 pandas
+seaborn
 matplotlib
 ramp-workflow
 scikit-learn
