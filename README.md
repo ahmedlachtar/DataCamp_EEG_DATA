@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # RAMP starting kit on classifying EEG signals
 
 ## Description
@@ -43,3 +44,8 @@ ramp-test --help
 ```
 
 - If you wish to know more about how the Ramp works, more detailes can be found [here](https://paris-saclay-cds.github.io/ramp-docs/ramp-workflow/stable/using_kits.html)
+=======
+# DataCamp_EEG_DATA
+
+Create a new folder named "mindbigdata-ep-v1.0" and put all the data files from the website in there then execute this code. 
+>>>>>>> b6636564e44aedd281e8bcc88fce6db931f846aa
