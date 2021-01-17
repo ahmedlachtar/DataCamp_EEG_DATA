@@ -1,4 +1,4 @@
-# RAMP starting kit on classification EEG signals
+# RAMP starting kit on classifying EEG signals
 
 ## Description
 
